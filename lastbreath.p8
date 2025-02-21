@@ -37,11 +37,20 @@ end
 function rndb(low,high)
 	return flr(rnd(high-low+1)+low)
 end
+
+function collide(a,b)
+ return a.x<b.x+b.width and
+ 	a.x+a.width>b.x and
+ 	a.y<b.y+b.height and
+ 	a.y+a.height>b.y
+end
 -->8
 function p_init()
 	p={}
 	p.x=56
 	p.y=56
+	p.width=16
+	p.height=16
 	p.dx=0
 	p.dy=0
 	p.g=0.05
@@ -162,6 +171,8 @@ function laser_init(x,y)
 	local laser={}
 	laser.x=x
 	laser.y=y
+	laser.width=2
+	laser.height=6
 	add(lasers,laser)
 end
 
@@ -242,6 +253,9 @@ function asteroid_spawn()
 	
 	a.dx=dx*a.spd
 	a.dy=dy*a.spd
+	
+	a.width=8
+	a.height=8
 	
 	add(asteroids,a)
 end
