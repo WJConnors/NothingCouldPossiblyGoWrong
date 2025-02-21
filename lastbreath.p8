@@ -23,6 +23,16 @@ function _update()
 	asttimer-=1
 	lasers_update()
 	p_update()
+	
+	for l in all (lasers) do
+		for a in all (asteroids) do
+			if collide(a,l) then
+				del(lasers,l)
+				del(asteroids,a)
+			end
+		end
+	end
+	
 end
 
 function _draw()
