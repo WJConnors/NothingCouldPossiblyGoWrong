@@ -9,7 +9,8 @@ function _init()
 	asteroids_init()
 	
 	asttimer=0
-	astmaxtimer=60
+	astmax=100
+	astmin=20
 end
 
 function _update()
@@ -18,7 +19,7 @@ function _update()
 	asteroids_update()
 	if (asttimer<=0) then
 		asteroid_spawn()
-		asttimer=astmaxtimer
+		asttimer=flr(rndb(astmin,astmax))
 	end
 	asttimer-=1
 	lasers_update()
