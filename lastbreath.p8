@@ -39,8 +39,8 @@ end
 function _draw()
 	cls()
 	stars_draw()
-	asteroids_draw()
 	border_draw()
+	asteroids_draw()
 	p_draw()
 	lasers_draw()
 end
@@ -76,24 +76,9 @@ function p_init()
 end
 
 function p_update()
-	p.dy+=p.g
 	
-	if (btnp(🅾️)) p_fire(0)
-	if (btnp(❎)) p_fire(1)
-	
-	if btn(0) then
-		p.dy-=p.g*1.5
-		p.dx-=p.g*0.5
-	else
-		if (p.dx<0) p.dx+=p.g*0.25
-	end
-	
-	if btn(1) then
-		p.dy-=p.g*1.5
-		p.dx+=p.g*0.5
-	else
-		if (p.dx>0) p.dx-=p.g*0.25
-	end
+	p_inputs()
+	p_borders()
 	
 	p.x+=p.dx
 	p.y+=p.dy
@@ -114,6 +99,32 @@ function p_fire(side)
 		x=p.x+p.llx
 	end
 	laser_init(x,y)
+end
+
+function p_inputs()
+	if (btnp(🅾️)) p_fire(0)
+	if (btnp(❎)) p_fire(1)
+	
+	if btn(0) then
+		p.dy-=p.g*1.5
+		p.dx-=p.g*0.5
+	else
+		if (p.dx<0) p.dx+=p.g*0.1
+	end
+	
+	if btn(1) then
+		p.dy-=p.g*1.5
+		p.dx+=p.g*0.5
+	else
+		if (p.dx>0) p.dx-=p.g*0.1
+	end
+end
+
+function p_borders()
+	if (p.y<16) p.dy=3
+	if (p.y>96) p.dy=-3
+	if (p.x<14) p.dx=1
+	if (p.x>100) p.dx=-1
 end
 -->8
 function stars_init()
@@ -201,15 +212,101 @@ function lasers_draw()
 end
 -->8
 function border_init()
-	binfo={}
-	binfo.offset=0
-	binfo.length=10
+	local offset=10
+	local length=10
+	
+	local col=1
+	border={}
+	local x=3
+	local y=3
+	local mag=-1
+	for i=3,123 do
+		local py=y+offset
+		point_init(i,py,col)
+		offset+=mag
+		if (offset>=length) do
+			offset=length
+			mag=-1
+		end
+		if (offset==0) mag=1
+		col+=1
+		if (col>15) col=1
+	end
+	
+	offset=1
+	mag=1
+	x=123
+	for i=14,123 do
+		local px=x-offset
+		point_init(px,i,col)
+		offset+=mag
+		if (offset>=length) do
+			offset=length
+			mag=-1
+		end
+		if (offset==0) mag=1
+		col+=1
+		if (col>15) col=1
+	end
+	
+	y=123
+	offset=1
+	mag=1
+	for i=112,3,-1 do
+		local py=y-offset
+		point_init(i,py,col)
+		offset+=mag
+		if (offset>=length) do
+			offset=length
+			mag=-1
+		end
+		if (offset<=0) do
+		offset=0
+		mag=1
+		end
+		col+=1
+		if (col>15) col=1
+	end
+	
+	offset=8
+	mag=-1
+	x=10
+	for i=112,15,-1 do
+		local px=x-offset
+		point_init(px,i,col)
+		offset+=mag
+		if (offset>=length) do
+			offset=length
+			mag=-1
+		end
+		if (offset==0) mag=1
+		col+=1
+		if (col>15) col=1
+	end
+	point_init(2,14,col)
+	
 end
 
 function border_update()
+	temp=border[1].col
+	for i=1,#border-1 do
+		border[i].col=border[i+1].col
+	end
+	border[#border].col=temp
 end
 
 function border_draw()
+	for p in all (border) do
+		pset(p.x,p.y,p.col)
+	end
+end
+
+function point_init(x,y,col)
+	local point={}
+	point.x=x
+	point.y=y
+	point.col=col
+	add(border,point)
 end
 -->8
 function asteroids_init()
