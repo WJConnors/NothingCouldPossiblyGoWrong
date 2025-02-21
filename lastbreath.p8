@@ -6,11 +6,21 @@ function _init()
 	stars_init()
 	p_init()
 	lasers_init()
+	asteroids_init()
+	
+	asttimer=0
+	astmaxtimer=60
 end
 
 function _update()
 	border_update()
 	stars_update()
+	asteroids_update()
+	if (asttimer<=0) then
+		asteroid_spawn()
+		asttimer=astmaxtimer
+	end
+	asttimer-=1
 	lasers_update()
 	p_update()
 end
@@ -18,6 +28,7 @@ end
 function _draw()
 	cls()
 	stars_draw()
+	asteroids_draw()
 	border_draw()
 	p_draw()
 	lasers_draw()
@@ -47,8 +58,8 @@ end
 function p_update()
 	p.dy+=p.g
 	
-	if (btnp(4)) p_fire(0)
-	if (btnp(5)) p_fire(1)
+	if (btnp(🅾️)) p_fire(0)
+	if (btnp(❎)) p_fire(1)
 	
 	if btn(0) then
 		p.dy-=p.g*1.5
@@ -163,7 +174,7 @@ end
 
 function lasers_draw()
 	for l in all (lasers) do
-		spr(lasspr,l.x,flr(l.y))
+		spr(lasspr,flr(l.x),flr(l.y))
 	end
 end
 -->8
@@ -174,10 +185,66 @@ function border_init()
 end
 
 function border_update()
-	border={}
 end
 
 function border_draw()
+end
+-->8
+function asteroids_init()
+	astinfo={}
+	astinfo.speedmin=0.5
+	astinfo.speedmax=2
+	astinfo.spr=5
+	asteroids={}
+end
+
+function asteroids_update()
+	for a in all (asteroids) do
+		a.x+=a.dx
+		a.y+=a.dy
+		if (a.dx > 0 and a.x >= a.targetx) or (a.dx < 0 and a.x <= a.targetx) then
+			del(asteroids,a)
+		end
+	end
+end
+
+function asteroids_draw()
+	for a in all (asteroids) do
+		spr(astinfo.spr,flr(a.x),flr(a.y))
+	end
+end
+
+function asteroid_spawn()
+	local a={}
+	if rnd(1)<0.5 then
+		a.x=-8
+		a.dir=-1
+		a.targetx=136
+	else
+		a.x=136
+		a.dir=1
+		a.targetx=-8
+	end
+	a.y=flr(rndb(0,56))
+	a.targety=
+		flr(rndb(0,56))
+	a.spd=
+		rndb(
+			astinfo.speedmin,
+			astinfo.speedmax)
+	
+	local dx=a.targetx-a.x
+	local dy=a.targety-a.y
+	local distance=sqrt(
+		(dx^2)+(dy^2))
+	dx/=distance
+	dy/=distance
+	
+	a.dx=dx*a.spd
+	a.dy=dy*a.spd
+	
+	add(asteroids,a)
+end
 __gfx__
 000000000000000660000000ee000000000000000004440000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000000000000006666000000ee000000000000000044444000000000000000000000000000000000000000000000000000000000000000000000000000000000
