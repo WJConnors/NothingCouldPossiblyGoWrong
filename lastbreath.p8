@@ -4,10 +4,12 @@ __lua__
 function _init()
 	stars_init()
 	p_init()
+	lasers_init()
 end
 
 function _update()
 	stars_update()
+	lasers_update()
 	p_update()
 end
 
@@ -15,6 +17,7 @@ function _draw()
 	cls()
 	stars_draw()
 	p_draw()
+	lasers_draw()
 end
 
 function rndb(low,high)
@@ -33,18 +36,16 @@ function p_init()
 	p.fy=16
 	p.fxl=4
 	p.fxr=10
-	p.llx=1
-	p.lly=1
-	p.lrx=3
-	p.lry=3
-	p.ls=3
+	p.ly=4
+	p.llx=14
+	p.lrx=0
 end
 
 function p_update()
 	p.dy+=p.g
 	
-	if (btn(4)) p_fire(0)
-	if (btn(5)) p_fire(1)
+	if (btnp(4)) p_fire(0)
+	if (btnp(5)) p_fire(1)
 	
 	if btn(0) then
 		p.dy-=p.g*1.5
@@ -72,12 +73,11 @@ end
 
 function p_fire(side)
 	local x,y
+	y=p.y+p.ly
 	if side==0 then
-		x=p.llx
-		y=p.lly
+		x=p.x+p.lrx
 	else
-		x=p.lrx
-		y=p.lry
+		x=p.x+p.llx
 	end
 	laser_init(x,y)
 end
@@ -135,6 +135,32 @@ function stars_draw()
 		if star.on then
 			pset(star.x,star.y,star.c)
 		end
+	end
+end
+-->8
+function lasers_init()
+	lasers={}
+	lasspr=3
+	lasspd=3
+end
+
+function laser_init(x,y)
+	local laser={}
+	laser.x=x
+	laser.y=y
+	add(lasers,laser)
+end
+
+function lasers_update()
+	for l in all (lasers) do
+		l.y-=lasspd
+		if (l.y<-5) del(lasers,l)
+	end
+end
+
+function lasers_draw()
+	for l in all (lasers) do
+		spr(lasspr,l.x,flr(l.y))
 	end
 end
 __gfx__
