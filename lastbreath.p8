@@ -2,12 +2,14 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
+	border_init()
 	stars_init()
 	p_init()
 	lasers_init()
 end
 
 function _update()
+	border_update()
 	stars_update()
 	lasers_update()
 	p_update()
@@ -16,6 +18,7 @@ end
 function _draw()
 	cls()
 	stars_draw()
+	border_draw()
 	p_draw()
 	lasers_draw()
 end
@@ -163,6 +166,18 @@ function lasers_draw()
 		spr(lasspr,l.x,flr(l.y))
 	end
 end
+-->8
+function border_init()
+	binfo={}
+	binfo.offset=0
+	binfo.length=10
+end
+
+function border_update()
+	border={}
+end
+
+function border_draw()
 __gfx__
 000000000000000660000000ee000000000000000004440000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000000000000006666000000ee000000000000000044444000000000000000000000000000000000000000000000000000000000000000000000000000000000
