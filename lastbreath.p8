@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
+	menu_init()
 	border_init()
 	stars_init()
 	p_init()
@@ -12,7 +13,7 @@ function _init()
 	astmax=100
 	astmin=20
 	score=0
-	play=true
+	play=false
 end
 
 function _update()
@@ -26,6 +27,8 @@ function _update()
 		end
 		asttimer-=1
 		p_update()
+	else
+		menu_update()
 	end
 	lasers_update()
 
@@ -54,7 +57,11 @@ function _draw()
 	stars_draw()
 	border_draw()
 	asteroids_draw()
-	if (play) p_draw()
+	if (play) then
+	 p_draw()
+	else
+		menu_draw()
+	end
 	lasers_draw()
 	print(score,8,12,2)
 end
@@ -403,6 +410,45 @@ function asteroid_spawn()
 	a.height=8
 	
 	add(asteroids,a)
+end
+-->8
+function menu_init()
+	menu={
+		items={"start","quit"},
+		selected=1
+	}
+end
+
+function menu_update()
+	if btnp(2) then
+		menu.selected-=1
+		if (menu.selected<1) menu.selected=#menu.items
+	end
+	if btnp(3) then
+		menu.selected+=1
+		if (menu.selected>#menu.items) menu.selected=1
+	end
+	if btnp(4) then
+		if (menu.selected==1) then
+		 play=true
+		 score=0
+		elseif (menu.selected==2) then
+			shutdown()
+		end
+	end
+end
+
+function menu_draw()
+	print("last breath",42,20,7)
+	
+	for i=1,#menu.items do
+		local color=6
+		if i==menu.selected then
+			color=10
+			print(">",30,40+i*10,10)
+		end
+		print(menu.items[i],40,40+i*10,color)
+	end
 end
 __gfx__
 000000000000000660000000ee000000000000000004440000000000000000000000000000000000000000000000000000000000000000000000000000000000
