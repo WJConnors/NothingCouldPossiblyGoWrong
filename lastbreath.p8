@@ -11,26 +11,39 @@ function _init()
 	asttimer=0
 	astmax=100
 	astmin=20
+	score=0
+	play=true
 end
 
 function _update()
 	border_update()
 	stars_update()
 	asteroids_update()
-	if (asttimer<=0) then
-		asteroid_spawn()
-		asttimer=flr(rndb(astmin,astmax))
+	if play then
+		if (asttimer<=0) then
+			asteroid_spawn()
+			asttimer=flr(rndb(astmin,astmax))
+		end
+		asttimer-=1
+		p_update()
 	end
-	asttimer-=1
 	lasers_update()
-	p_update()
+
 	
 	for l in all (lasers) do
 		for a in all (asteroids) do
 			if collide(a,l) then
 				del(lasers,l)
 				del(asteroids,a)
+				if (play) score+=5
 			end
+		end
+	end
+	
+	for a in all (asteroids) do
+		if p_collide(a) then
+			del(asteroids,a)
+			play=false
 		end
 	end
 	
@@ -41,8 +54,9 @@ function _draw()
 	stars_draw()
 	border_draw()
 	asteroids_draw()
-	p_draw()
+	if (play) p_draw()
 	lasers_draw()
+	print(score,8,12,2)
 end
 
 function rndb(low,high)
@@ -64,7 +78,7 @@ function p_init()
 	p.height=16
 	p.dx=0
 	p.dy=0
-	p.g=0.05
+	p.g=0.025
 	p.s=1
 	p.fs=33
 	p.fy=16
@@ -73,9 +87,15 @@ function p_init()
 	p.ly=4
 	p.llx=14
 	p.lrx=0
+	p.lcd=0
+	p.rcd=0
+	p.cd=6
 end
 
 function p_update()
+	p.dy+=p.g
+	if (p.lcd>0) p.lcd-=1
+	if (p.rcd>0) p.rcd-=1
 	
 	p_inputs()
 	p_borders()
@@ -102,29 +122,45 @@ function p_fire(side)
 end
 
 function p_inputs()
-	if (btnp(🅾️)) p_fire(0)
-	if (btnp(❎)) p_fire(1)
+	if (btnp(🅾️) and p.lcd==0) then
+	 p_fire(0)
+	 p.lcd=p.cd
+	end
+	if (btnp(❎) and p.rcd==0) then
+		p_fire(1)
+		p.rcd=p.cd
+	end
 	
 	if btn(0) then
 		p.dy-=p.g*1.5
 		p.dx-=p.g*0.5
 	else
-		if (p.dx<0) p.dx+=p.g*0.1
+		if (p.dx<0) p.dx+=p.g*0.2
 	end
 	
 	if btn(1) then
 		p.dy-=p.g*1.5
 		p.dx+=p.g*0.5
 	else
-		if (p.dx>0) p.dx-=p.g*0.1
+		if (p.dx>0) p.dx-=p.g*0.2
 	end
 end
 
 function p_borders()
-	if (p.y<16) p.dy=3
-	if (p.y>96) p.dy=-3
+	if (p.y<14) p.dy=1
+	if (p.y>96) p.dy=-1
 	if (p.x<14) p.dx=1
 	if (p.x>100) p.dx=-1
+end
+
+function p_collide(other)
+	local temp={}
+	temp.x=p.x+2
+	temp.y=p.y+2
+	temp.width=p.width-4
+	temp.height=p.height-4
+	if (not play) return false
+	return collide(temp,other)
 end
 -->8
 function stars_init()
@@ -311,8 +347,8 @@ end
 -->8
 function asteroids_init()
 	astinfo={}
-	astinfo.speedmin=0.5
-	astinfo.speedmax=2
+	astinfo.speedmin=0.2
+	astinfo.speedmax=1
 	astinfo.spr=5
 	asteroids={}
 end
@@ -323,6 +359,7 @@ function asteroids_update()
 		a.y+=a.dy
 		if (a.dx > 0 and a.x >= a.targetx) or (a.dx < 0 and a.x <= a.targetx) then
 			del(asteroids,a)
+			score+=1
 		end
 	end
 end
@@ -344,9 +381,9 @@ function asteroid_spawn()
 		a.dir=1
 		a.targetx=-8
 	end
-	a.y=flr(rndb(0,56))
+	a.y=flr(rndb(0,120))
 	a.targety=
-		flr(rndb(0,56))
+		flr(rndb(0,120))
 	a.spd=
 		rndb(
 			astinfo.speedmin,
