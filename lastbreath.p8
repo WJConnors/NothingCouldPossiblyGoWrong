@@ -13,6 +13,8 @@ function _init()
 	astmax=100
 	astmin=20
 	score=0
+	cartdata(0)
+	high_score=dget(0) or 0
 	play=false
 end
 
@@ -38,6 +40,7 @@ function _update()
 			if collide(a,l) then
 				del(lasers,l)
 				del(asteroids,a)
+				sfx(2)
 				if (play) score+=5
 			end
 		end
@@ -45,7 +48,12 @@ function _update()
 	
 	for a in all (asteroids) do
 		if p_collide(a) then
+			sfx(0)
 			del(asteroids,a)
+			if score > high_score then
+				high_score=score
+				dset(0,high_score)
+			end
 			play=false
 		end
 	end
@@ -119,6 +127,7 @@ end
 
 function p_fire(side)
 	local x,y
+	sfx(1)
 	y=p.y+p.ly
 	if side==0 then
 		x=p.x+p.lrx
@@ -129,28 +138,43 @@ function p_fire(side)
 end
 
 function p_inputs()
-	if (btnp(🅾️) and p.lcd==0) then
-	 p_fire(0)
-	 p.lcd=p.cd
-	end
-	if (btnp(❎) and p.rcd==0) then
-		p_fire(1)
-		p.rcd=p.cd
-	end
-	
-	if btn(0) then
-		p.dy-=p.g*1.5
-		p.dx-=p.g*0.5
-	else
-		if (p.dx<0) p.dx+=p.g*0.2
-	end
-	
-	if btn(1) then
-		p.dy-=p.g*1.5
-		p.dx+=p.g*0.5
-	else
-		if (p.dx>0) p.dx-=p.g*0.2
-	end
+ if (btnp(🅾️) and p.lcd == 0) then
+  p_fire(0)
+  p.lcd = p.cd
+ end
+ if (btnp(❎) and p.rcd == 0) then
+  p_fire(1)
+  p.rcd = p.cd
+ end
+
+ if btn(0) then
+  p.dy -= p.g * 1.5
+  p.dx -= p.g * 0.5
+  if stat(51) == -1 then
+   sfx(3, 1)
+  end
+ end
+ if not btn(0) then
+  sfx(-1, 1)
+ end
+
+ if btn(1) then
+  p.dy -= p.g * 1.5
+  p.dx += p.g * 0.5
+  if stat(52) == -1 then
+   sfx(4, 2)
+  end
+ end
+ if not btn(1) then
+  sfx(-1, 2)
+ end
+
+ if not btn(0) and p.dx < 0 then
+  p.dx += p.g * 0.2
+ end
+ if not btn(1) and p.dx > 0 then
+  p.dx -= p.g * 0.2
+ end
 end
 
 function p_borders()
@@ -440,6 +464,7 @@ end
 
 function menu_draw()
 	print("last breath",42,20,7)
+	print("high score:"..high_score,40,30,7)
 	
 	for i=1,#menu.items do
 		local color=6
@@ -470,3 +495,9 @@ __gfx__
 00000000990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+__sfx__
+00090000324502b450224501b45015450104500d4500b4500a4500845007450064500545004450024500245002450024500000000000000000000000000000000000000000000000000000000000000000000000
+000200000000026750207501c750197501675013750107500e7500d75000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0002000036610316102e61029610246101f6101b610176101561012610106100d6100a61009610086100000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0032000c17610206102461028610296102a6102861026610236101e61019610166101660016600146001460000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0032000e246101f6101b6201861016610156101461015610176101a6101e610216102261023610000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
